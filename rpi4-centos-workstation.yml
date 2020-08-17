@@ -53,19 +53,19 @@
         removes: /etc/centos-release
 
     - name: Install GUI
-      shell: yum groupinstall "Server with GUI" --skip-broken
+      shell: yum -y groupinstall "Server with GUI" --skip-broken
 
     - name: Enable PowerTools
       shell: dnf config-manager --enable PowerTools
 
     - name: Install Core
-      shell: dnf groupupdate core
+      shell: dnf -y groupupdate core
 
     - name: Install Multimedia selection
-      shell: dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+      shell: dnf -y groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
 
     - name: Install Sound and Video selection
-      shell: dnf groupupdate sound-and-video
+      shell: dnf -y groupupdate sound-and-video
 
     - name: Install tainted repositories
       package:
