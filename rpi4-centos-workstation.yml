@@ -37,6 +37,7 @@
 
     - name: Extending partition 3 to max size
       shell: growpart /dev/mmcblk0 3
+      ignore_errors: yes
 
     - name: Extend the filesystem on partition 3
       filesystem:
