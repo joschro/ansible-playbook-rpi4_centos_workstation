@@ -1,0 +1,82 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  vars:
+    myhostame: rpi4-workstation.local
+  #vars_files:
+  #  - /root/vars.yml
+  become: yes
+  tasks:
+    - name: Read device information (always use unit when probing)
+      parted: device=/dev/mmcblk0 unit=s
+      register: mmcblk0_info
+
+    - debug:
+        var: mmcblk0_info.partitions[2].begin
+        verbosity: 0
+
+#    - name: Replace 3rd partition
+#      shell: |
+#        fdisk /dev/mmcblk0 <<EOF
+#        d
+#        3
+#        n
+#        p
+#        3
+#        {{ mmcblk0_info.partitions[2].begin | string | splitext | max }}
+#        
+#        p
+#        w
+#        EOF
+#      register: mmcblk0_out
+#
+#    - debug:
+#        var: mmcblk0_out
+#        verbosity: 0
+
+
+    - name: Extending partition 3 to max size
+      shell: growpart /dev/mmcblk0 3
+
+    - name: Extend the filesystem on partition 3
+      filesystem:
+        fstype: 'ext4'
+        dev: '/dev/mmcblk0p3'
+        resizefs: yes
+
+
+    - name: Install RPMfusion repositories
+      shell: rpm -q rpmfusion-nonfree-release || yum -y install --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
+      args:
+        creates: /etc/yum.repos.d/rpmfusion-free.repo
+        removes: /etc/centos-release
+
+
+    - name: Install packages
+      package:
+        name:
+          - vim
+          - tmux
+          - podman
+          - cockpit
+          - cockpit-composer
+          - cockpit-dashboard
+          - cockpit-machines
+          - cockpit-podman
+          - cockpit-storaged
+          - cockpit-session-recording
+          - ImageMagick
+          - bash-completion
+        state: present
+
+    - name: Force systemd to reread config, enable and start service
+      systemd:
+        name: cockpit.socket
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Update packages
+      package:
+        name: '*'
+        state: latest
