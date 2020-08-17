@@ -22,5 +22,5 @@ password: centos
 
 Enter
 ```
-curl run.sh | sh
+curl https://github.com/joschro/ansible-playbook-rpi4_centos_workstation/raw/master/run.sh | sh
 ```
