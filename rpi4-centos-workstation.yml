@@ -87,9 +87,13 @@
           - cockpit-podman
           - cockpit-storaged
           - cockpit-session-recording
+          - libreoffice
           - ImageMagick
           - bash-completion
           - libdvdcss
+          - webcamoid
+          - digikam
+          - qpdfview
         state: present
 
     - name: Force systemd to reread config, enable and start service
